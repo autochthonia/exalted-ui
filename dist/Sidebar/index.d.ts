@@ -1,3 +1,7 @@
 import { SFC } from 'react';
-declare const Sidebar: SFC;
+interface PSidebar {
+    stretch?: boolean;
+    forceUpdate?: boolean;
+}
+declare const Sidebar: SFC<PSidebar>;
 export default Sidebar;

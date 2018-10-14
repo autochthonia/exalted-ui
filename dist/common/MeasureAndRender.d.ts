@@ -4,8 +4,9 @@
  */
 import React, { Component } from 'react';
 interface PMeasureAndRender {
-    debounce: number;
-    stretch: boolean;
+    debounce?: number;
+    stretch?: boolean;
+    forceUpdate?: boolean;
     children(props: SMeasureAndRender['measurement']): JSX.Element;
 }
 interface SMeasureAndRender {
@@ -13,11 +14,17 @@ interface SMeasureAndRender {
     hasMeasured: boolean;
 }
 declare class MeasureAndRender extends Component<PMeasureAndRender, SMeasureAndRender> {
+    static defaultProps: {
+        stretch: boolean;
+        forceUpdate: boolean;
+        debounce: number;
+    };
     state: {
         measurement: null;
         hasMeasured: boolean;
     };
     el: React.RefObject<HTMLDivElement>;
+    updateInterval: ReturnType<typeof window.setInterval> | null;
     onWindowResize: (() => void) & {
         clear(): void;
     };

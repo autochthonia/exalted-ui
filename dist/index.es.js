@@ -39,11 +39,12 @@ var MeasureAndRender = /** @class */ (function (_super) {
             hasMeasured: false,
         };
         _this.el = React.createRef();
+        _this.updateInterval = null;
         _this.onWindowResize = debounce(function () {
             _this.setState({
                 measurement: _this.el.current && _this.el.current.getBoundingClientRect(),
             });
-        }, _this.props.debounce || 100);
+        }, _this.props.debounce);
         return _this;
     }
     MeasureAndRender.prototype.componentDidMount = function () {
@@ -51,10 +52,20 @@ var MeasureAndRender = /** @class */ (function (_super) {
             measurement: this.el.current && this.el.current.getBoundingClientRect(),
             hasMeasured: true,
         });
-        window.addEventListener('resize', this.onWindowResize);
+        if (this.props.forceUpdate) {
+            this.updateInterval = window.setInterval(this.onWindowResize, this.props.debounce);
+        }
+        else {
+            window.addEventListener('resize', this.onWindowResize);
+        }
     };
     MeasureAndRender.prototype.componentWillUnmount = function () {
-        window.removeEventListener('resize', this.onWindowResize);
+        if (this.updateInterval) {
+            window.clearInterval(this.updateInterval);
+        }
+        else {
+            window.removeEventListener('resize', this.onWindowResize);
+        }
     };
     MeasureAndRender.prototype.render = function () {
         return (React.createElement("div", { style: this.props.stretch
@@ -65,15 +76,21 @@ var MeasureAndRender = /** @class */ (function (_super) {
                     bottom: 0,
                     left: 0,
                 }
-                : {}, ref: this.el }, this.state.hasMeasured && this.props.children(this.state.measurement)));
+                : {
+                    maxHeight: '100%',
+                    maxWidth: '100%',
+                    height: '100%',
+                    width: '100%',
+                }, ref: this.el }, this.state.hasMeasured && this.props.children(this.state.measurement)));
+    };
+    MeasureAndRender.defaultProps = {
+        stretch: false,
+        forceUpdate: false,
+        debounce: 100,
     };
     return MeasureAndRender;
 }(Component));
 
-var styles = {
-    width: '100%',
-    height: '100%',
-};
 var Svg = /** @class */ (function (_super) {
     __extends(Svg, _super);
     function Svg() {
@@ -83,43 +100,47 @@ var Svg = /** @class */ (function (_super) {
         return prevProps.bounds !== this.props.bounds || prevProps.path !== this.props.path;
     };
     Svg.prototype.render = function () {
+        var id = this.props.id || Math.ceil(Math.random() * 1000);
         var bounds = this.props.bounds;
         var strokeSize = 2;
-        return (React.createElement("svg", { version: "1.1", xmlns: "http://www.w3.org/2000/svg", style: styles, viewBox: "0 0 " + ((bounds && bounds.width) || 0) + " " + ((bounds && bounds.height) || 0), preserveAspectRatio: "none" },
-            React.createElement("defs", null, React.createElement("pattern", { id: "panel-background", patternUnits: "userSpaceOnUse", width: "100%", height: "100%" },
-                React.createElement("image", { xlinkHref: "https://i.imgur.com/mGKHSlA.png", preserveAspectRatio: "xMinYMin slice", x: "0", y: "0", 
-                    // opacity=".4"
-                    width: "100%", height: "100%" }))),
-            React.createElement("g", { id: "Page-1", stroke: "none", strokeWidth: "1", fill: "none", fillRule: "evenodd" },
-                React.createElement("g", { id: "100-by-exact", stroke: "url(#linearGradient-1)", strokeWidth: strokeSize },
-                    React.createElement("path", { vectorEffect: "non-scaling-stroke", fill: "url(#panel-background)", d: this.props.path, id: "Pane_External_Box" }))),
-            React.createElement("foreignObject", { x: "30", y: "30", width: (this.props.bounds && this.props.bounds.width) || 0 - 60, height: (this.props.bounds && this.props.bounds.height) || 0 - 60 }, this.props.children)));
+        return (React.createElement("svg", { viewBox: "0 0 " + ((bounds && bounds.width) || 0) + " " + ((bounds && bounds.height) || 0), preserveAspectRatio: "none", style: {
+                width: '100%',
+                height: '100%',
+            } },
+            React.createElement("defs", null,
+                React.createElement("linearGradient", { x1: "11.875%", y1: "100%", x2: "88.125%", y2: "0%", id: "sidebar-stroke-" + id },
+                    React.createElement("stop", { stopColor: "orange", offset: "0%" }),
+                    React.createElement("stop", { stopColor: "gold", offset: "100%" })),
+                React.createElement("pattern", { id: "sidebar-background-" + id, patternUnits: "userSpaceOnUse", width: "100%", height: "100%" },
+                    React.createElement("image", { xlinkHref: "https://i.imgur.com/mGKHSlA.png", preserveAspectRatio: "xMinYMin slice", width: "100%", height: "100%" }))),
+            React.createElement("path", { fill: "url(#sidebar-background-" + id + ")", d: this.props.path, fillRule: "evenodd", stroke: "url(#sidebar-stroke-" + id + ")", strokeWidth: strokeSize }),
+            React.createElement("foreignObject", { x: 30, y: 30, width: ((this.props.bounds && this.props.bounds.width) || 0) - 60, height: ((this.props.bounds && this.props.bounds.height) || 0) - 60 }, this.props.children)));
     };
     return Svg;
 }(Component));
 
 var Sidebar = function (_a) {
-    var children = _a.children;
+    var children = _a.children, _b = _a.stretch, stretch = _b === void 0 ? false : _b, _c = _a.forceUpdate, forceUpdate = _c === void 0 ? false : _c;
     var stroke = 2;
     var offset = 0;
     return (React.createElement("div", { style: {
             position: 'relative',
-            display: 'grid',
-            gridTemplateColumns: '1fr',
-            gridTemplateRows: '45vh 45vh',
+            maxHeight: '100%',
+            maxWidth: '100%',
+            height: '100%',
+            width: '100%',
         } },
-        React.createElement("div", { style: { position: 'relative' } },
-            React.createElement(MeasureAndRender, { stretch: true, debounce: 1 }, function (bounds) {
-                var height = (bounds && bounds.height) || 0;
-                var width = (bounds && bounds.width) || 0;
-                var path = "\n                  M" + (stroke + 30) + "," + stroke + "\n                  L" + (stroke + 30) + "," + (stroke + 20) + " \n                  L" + (stroke + 20) + "," + (stroke + 20) + " \n                  L" + (stroke + 20) + "," + (stroke + 10) + " \n                  L" + (stroke + 10) + "," + (stroke + 10) + " \n                  L" + (stroke + 10) + "," + (stroke + 20) + " \n                  L" + (stroke + 20) + "," + (stroke + 20) + " \n                  L" + (stroke + 20) + "," + (stroke + 30) + " \n                  L" + (stroke + 0) + "," + (stroke + 30) + " \n                  L" + stroke + "," + (height - stroke - 30) + "\n                  L" + (stroke + 20) + "," + (height - stroke - 30) + "\n                  L" + (stroke + 20) + "," + (height - stroke - 20) + "\n                  L" + (stroke + 20) + "," + (height - stroke - 10) + "\n                  L" + (stroke + 10) + "," + (height - stroke - 10) + "\n                  L" + (stroke + 10) + "," + (height - stroke - 20) + "\n                  L" + (stroke + 30) + "," + (height - stroke - 20) + "\n                  L" + (stroke + 30) + "," + (height - stroke) + "\n                  L" + (width - 30 - offset) + "," + (height - stroke) + " \n                  L" + (width - 30 - offset) + "," + (height - 20) + "\n                  L" + (width - 20 - offset) + "," + (height - 20) + "\n                  L" + (width - 20 - offset) + "," + (height - 10) + "\n                  L" + (width - 10 - offset) + "," + (height - 10) + "\n                  L" + (width - 10 - offset) + "," + (height - 20) + "\n                  L" + (width - 20 - offset) + "," + (height - 20) + "\n                  L" + (width - 20 - offset) + "," + (height - 30) + "\n                  L" + (width - stroke) + "," + (height - 30) + "\n                  L" + (width - stroke) + "," + 30 + "\n                  L" + (width - stroke - 20) + "," + 30 + "\n                  L" + (width - stroke - 20) + "," + 20 + "\n                  L" + (width - stroke - 10) + "," + 20 + "\n                  L" + (width - stroke - 10) + "," + 10 + "\n                  L" + (width - stroke - 20) + "," + 10 + "\n                  L" + (width - stroke - 20) + "," + 20 + "\n                  L" + (width - stroke - 30) + "," + 20 + "\n                  L" + (width - stroke - 30) + "," + 0 + "\n                  Z";
-                return (React.createElement(Svg, { bounds: bounds, path: path },
-                    React.createElement("div", { style: {
-                            height: '100%',
-                            width: '100%',
-                            display: 'flex',
-                        } }, children)));
-            }))));
+        React.createElement(MeasureAndRender, { stretch: stretch, debounce: 1, forceUpdate: forceUpdate }, function (bounds) {
+            var height = (bounds && bounds.height) || 0;
+            var width = (bounds && bounds.width) || 0;
+            var path = "\n                  M" + (stroke + 30) + "," + stroke + "\n                  L" + (stroke + 30) + "," + (stroke + 20) + " \n                  L" + (stroke + 20) + "," + (stroke + 20) + " \n                  L" + (stroke + 20) + "," + (stroke + 10) + " \n                  L" + (stroke + 10) + "," + (stroke + 10) + " \n                  L" + (stroke + 10) + "," + (stroke + 20) + " \n                  L" + (stroke + 20) + "," + (stroke + 20) + " \n                  L" + (stroke + 20) + "," + (stroke + 30) + " \n                  L" + (stroke + 0) + "," + (stroke + 30) + " \n                  L" + stroke + "," + (height - stroke - 30) + "\n                  L" + (stroke + 20) + "," + (height - stroke - 30) + "\n                  L" + (stroke + 20) + "," + (height - stroke - 20) + "\n                  L" + (stroke + 20) + "," + (height - stroke - 10) + "\n                  L" + (stroke + 10) + "," + (height - stroke - 10) + "\n                  L" + (stroke + 10) + "," + (height - stroke - 20) + "\n                  L" + (stroke + 30) + "," + (height - stroke - 20) + "\n                  L" + (stroke + 30) + "," + (height - stroke) + "\n                  L" + (width - 30 - offset) + "," + (height - stroke) + " \n                  L" + (width - 30 - offset) + "," + (height - 20) + "\n                  L" + (width - 20 - offset) + "," + (height - 20) + "\n                  L" + (width - 20 - offset) + "," + (height - 10) + "\n                  L" + (width - 10 - offset) + "," + (height - 10) + "\n                  L" + (width - 10 - offset) + "," + (height - 20) + "\n                  L" + (width - 20 - offset) + "," + (height - 20) + "\n                  L" + (width - 20 - offset) + "," + (height - 30) + "\n                  L" + (width - stroke) + "," + (height - 30) + "\n                  L" + (width - stroke) + "," + 30 + "\n                  L" + (width - stroke - 20) + "," + 30 + "\n                  L" + (width - stroke - 20) + "," + 20 + "\n                  L" + (width - stroke - 10) + "," + 20 + "\n                  L" + (width - stroke - 10) + "," + 10 + "\n                  L" + (width - stroke - 20) + "," + 10 + "\n                  L" + (width - stroke - 20) + "," + 20 + "\n                  L" + (width - stroke - 30) + "," + 20 + "\n                  L" + (width - stroke - 30) + "," + 0 + "\n                  Z";
+            return (React.createElement(Svg, { bounds: bounds, path: path },
+                React.createElement("div", { style: {
+                        height: '100%',
+                        width: '100%',
+                        display: 'flex',
+                    } }, children)));
+        })));
 };
 
 var index = {
