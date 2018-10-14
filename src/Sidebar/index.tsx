@@ -2,7 +2,11 @@ import React, { SFC } from 'react';
 import MeasureAndRender from '../common/MeasureAndRender';
 import Svg from '../common/Svg';
 
-const Sidebar: SFC = ({ children }) => {
+interface PSidebar {
+  stretch?: boolean;
+}
+
+const Sidebar: SFC<PSidebar> = ({ children, stretch = false }) => {
   const stroke = 2;
   const offset = 0;
 
@@ -10,17 +14,21 @@ const Sidebar: SFC = ({ children }) => {
     <div
       style={{
         position: 'relative',
-        display: 'grid',
-        gridTemplateColumns: '1fr',
-        gridTemplateRows: '45vh 45vh',
+        maxHeight: '100%',
+        maxWidth: '100%',
+        height: '100%',
+        width: '100%',
+        // display: 'grid',
+        // gridTemplateColumns: '1fr',
+        // gridTemplateRows: '45vh 45vh',
       }}
     >
-      <div style={{ position: 'relative' }}>
-        <MeasureAndRender stretch debounce={1}>
-          {bounds => {
-            const height = (bounds && bounds.height) || 0;
-            const width = (bounds && bounds.width) || 0;
-            const path = `
+      {/* <div style={{ position: 'relative' }}> */}
+      <MeasureAndRender stretch={stretch} debounce={1}>
+        {bounds => {
+          const height = (bounds && bounds.height) || 0;
+          const width = (bounds && bounds.width) || 0;
+          const path = `
                   M${stroke + 30},${stroke}
                   L${stroke + 30},${stroke + 20} 
                   L${stroke + 20},${stroke + 20} 
@@ -58,22 +66,22 @@ const Sidebar: SFC = ({ children }) => {
                   L${width - stroke - 30},${0}
                   Z`;
 
-            return (
-              <Svg bounds={bounds} path={path}>
-                <div
-                  style={{
-                    height: '100%',
-                    width: '100%',
-                    display: 'flex',
-                  }}
-                >
-                  {children}
-                </div>
-              </Svg>
-            );
-          }}
-        </MeasureAndRender>
-      </div>
+          return (
+            <Svg bounds={bounds} path={path}>
+              <div
+                style={{
+                  height: '100%',
+                  width: '100%',
+                  display: 'flex',
+                }}
+              >
+                {children}
+              </div>
+            </Svg>
+          );
+        }}
+      </MeasureAndRender>
+      {/* </div> */}
     </div>
   );
 };

@@ -6,7 +6,7 @@ import debounce from 'debounce';
 
 interface PMeasureAndRender {
   debounce: number;
-  stretch: boolean;
+  stretch?: boolean;
   children(props: SMeasureAndRender['measurement']): JSX.Element;
 }
 
@@ -16,6 +16,11 @@ interface SMeasureAndRender {
 }
 
 class MeasureAndRender extends Component<PMeasureAndRender, SMeasureAndRender> {
+  static defaultProps = {
+    stretch: false,
+    debounce: 100,
+  };
+
   state = {
     measurement: null,
     hasMeasured: false,
@@ -26,7 +31,7 @@ class MeasureAndRender extends Component<PMeasureAndRender, SMeasureAndRender> {
     this.setState({
       measurement: this.el.current && this.el.current.getBoundingClientRect(),
     });
-  }, this.props.debounce || 100);
+  }, this.props.debounce);
 
   componentDidMount() {
     this.setState({
@@ -53,7 +58,12 @@ class MeasureAndRender extends Component<PMeasureAndRender, SMeasureAndRender> {
                 bottom: 0,
                 left: 0,
               }
-            : {}
+            : {
+                maxHeight: '100%',
+                maxWidth: '100%',
+                height: '100%',
+                width: '100%',
+              }
         }
         ref={this.el}
       >

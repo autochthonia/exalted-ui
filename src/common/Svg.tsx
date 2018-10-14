@@ -68,8 +68,8 @@ export default class Svg extends Component<PSvg> {
         <foreignObject
           x="30"
           y="30"
-          width={(this.props.bounds && this.props.bounds.width) || 0 - 60}
-          height={(this.props.bounds && this.props.bounds.height) || 0 - 60}
+          width={((this.props.bounds && this.props.bounds.width) || 0) - 60}
+          height={((this.props.bounds && this.props.bounds.height) || 0) - 60}
         >
           {this.props.children}
         </foreignObject>
