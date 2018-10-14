@@ -5,8 +5,9 @@ import React, { Component } from 'react';
 import debounce from 'debounce';
 
 interface PMeasureAndRender {
-  debounce: number;
+  debounce?: number;
   stretch?: boolean;
+  forceUpdate?: boolean;
   children(props: SMeasureAndRender['measurement']): JSX.Element;
 }
 
@@ -18,6 +19,7 @@ interface SMeasureAndRender {
 class MeasureAndRender extends Component<PMeasureAndRender, SMeasureAndRender> {
   static defaultProps = {
     stretch: false,
+    forceUpdate: false,
     debounce: 100,
   };
 
@@ -26,6 +28,7 @@ class MeasureAndRender extends Component<PMeasureAndRender, SMeasureAndRender> {
     hasMeasured: false,
   };
   el = React.createRef<HTMLDivElement>();
+  updateInterval: ReturnType<typeof window.setInterval>  | null = null;
 
   onWindowResize = debounce(() => {
     this.setState({
@@ -39,11 +42,19 @@ class MeasureAndRender extends Component<PMeasureAndRender, SMeasureAndRender> {
       hasMeasured: true,
     });
 
-    window.addEventListener('resize', this.onWindowResize);
+    if (this.props.forceUpdate) {
+      this.updateInterval = window.setInterval(this.onWindowResize, this.props.debounce);
+    } else {
+      window.addEventListener('resize', this.onWindowResize);
+    }
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.onWindowResize);
+    if (this.updateInterval) {
+      window.clearInterval(this.updateInterval);
+    } else {
+      window.removeEventListener('resize', this.onWindowResize);
+    }
   }
 
   render() {

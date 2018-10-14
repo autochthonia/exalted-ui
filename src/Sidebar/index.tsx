@@ -4,9 +4,10 @@ import Svg from '../common/Svg';
 
 interface PSidebar {
   stretch?: boolean;
+  forceUpdate?: boolean;
 }
 
-const Sidebar: SFC<PSidebar> = ({ children, stretch = false }) => {
+const Sidebar: SFC<PSidebar> = ({ children, stretch = false, forceUpdate = false }) => {
   const stroke = 2;
   const offset = 0;
 
@@ -24,7 +25,7 @@ const Sidebar: SFC<PSidebar> = ({ children, stretch = false }) => {
       }}
     >
       {/* <div style={{ position: 'relative' }}> */}
-      <MeasureAndRender stretch={stretch} debounce={1}>
+      <MeasureAndRender stretch={stretch} debounce={1} forceUpdate={forceUpdate}>
         {bounds => {
           const height = (bounds && bounds.height) || 0;
           const width = (bounds && bounds.width) || 0;
