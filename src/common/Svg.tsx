@@ -7,15 +7,12 @@ const styles = {
 };
 
 interface PSvg {
-  bounds: {
-    height: number;
-    width: number;
-  };
+  bounds: ReturnType<Element['getBoundingClientRect']> | null;
   path: string;
 }
 
 export default class Svg extends Component<PSvg> {
-  shouldComponentUpdate(prevProps) {
+  shouldComponentUpdate(prevProps: PSvg) {
     return prevProps.bounds !== this.props.bounds || prevProps.path !== this.props.path;
   }
 
@@ -28,7 +25,7 @@ export default class Svg extends Component<PSvg> {
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
         style={styles}
-        viewBox={`0 0 ${bounds.width} ${bounds.height}`}
+        viewBox={`0 0 ${(bounds && bounds.width) || 0} ${(bounds && bounds.height) || 0}`}
         preserveAspectRatio="none"
       >
         <defs>
@@ -71,8 +68,8 @@ export default class Svg extends Component<PSvg> {
         <foreignObject
           x="30"
           y="30"
-          width={this.props.bounds.width - 60}
-          height={this.props.bounds.height - 60}
+          width={(this.props.bounds && this.props.bounds.width) || 0 - 60}
+          height={(this.props.bounds && this.props.bounds.height) || 0 - 60}
         >
           {this.props.children}
         </foreignObject>
