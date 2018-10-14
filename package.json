@@ -2,11 +2,18 @@
   "name": "exalted-ui",
   "version": "1.0.0",
   "description": "UI library for Exalted 3rd Edition",
-  "main": "index.js",
   "repository": "https://github.com/autochthonia/exalted-ui",
   "author": "strass",
   "license": "MIT",
   "private": false,
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "files": ["dist"],
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -cw"
+  },
   "dependencies": {
     "@types/react": "^16.4.16",
     "debounce": "^1.2.0",
