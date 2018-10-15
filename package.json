@@ -1,6 +1,6 @@
 {
   "name": "exalted-ui",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "UI library for Exalted 3rd Edition",
   "repository": "https://github.com/autochthonia/exalted-ui",
   "author": "strass",
@@ -23,9 +23,9 @@
   },
   "peerDependencies": {
     "@types/react": "^16.4.16",
-    "react": "^16.5.2",
     "emotion": "^9.2.12",
-    "polished": "^2.2.0"
+    "polished": "^2.2.0",
+    "react": "^16.5.2"
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",
