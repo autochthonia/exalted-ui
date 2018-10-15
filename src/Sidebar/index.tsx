@@ -2,7 +2,7 @@ import React, { SFC } from 'react';
 import MeasureAndRender from '../common/MeasureAndRender';
 import Svg from '../common/Svg';
 
-interface PSidebar {
+export interface PSidebar {
   stretch?: boolean;
   forceUpdate?: boolean;
 }
