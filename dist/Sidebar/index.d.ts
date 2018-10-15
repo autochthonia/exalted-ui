@@ -1,5 +1,5 @@
 import { SFC } from 'react';
-interface PSidebar {
+export interface PSidebar {
     stretch?: boolean;
     forceUpdate?: boolean;
 }
